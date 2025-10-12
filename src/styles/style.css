@@ -5,3 +5,63 @@
   padding: 0;
   box-sizing: border-box;
 }
+body {
+  background-color: black;
+}
+#container {
+  height: 100dvh;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+.canvas {
+  border: 2px solid white;
+}
+.game-controls {
+  display: grid;
+  grid-template-areas:
+    ". up ."
+    "left down right";
+  justify-content: center;
+  justify-items: center;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+.move-button {
+  height: 6vmin;
+  aspect-ratio: 1/1;
+  background: none;
+  outline: none;
+  border: 2px solid white;
+  padding: 0.2rem;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+.move-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.move-button:active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.move-button-icon {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+.button-move-up {
+  grid-area: up;
+  align-items: flex-end;
+}
+.button-move-right {
+  grid-area: right;
+}
+.button-move-down {
+  grid-area: down;
+}
+.button-move-left {
+  grid-area: left;
+}
