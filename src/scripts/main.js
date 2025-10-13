@@ -34,6 +34,8 @@ function init() {
   window.onkeydown = event => change_direction(event.key.toLowerCase());
 
   move_buttons.map(move_button => (move_button.onclick = handle_change_direction_button_click));
+
+  document.getElementById("body").removeAttribute("style");
 }
 
 function set_canvas_size() {
