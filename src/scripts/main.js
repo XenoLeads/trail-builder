@@ -95,17 +95,22 @@ function get_random_range_value(min, max) {
 }
 
 function move(grow = false) {
+  const new_head = get_next_head();
+  // Return false if the game will be over after the next move
+  if (is_game_over(new_head.x, new_head.y)) return false;
+  update_head_position(new_head.x, new_head.y);
+  blocks.unshift(new_head);
+  if (!grow) blocks.pop();
+  // Return true if the move is valid
+  return true;
+}
+
+function get_next_head() {
   const new_head = {
     x: (head.x += cell_size * x_velocity),
     y: (head.y += cell_size * y_velocity),
   };
-  update_head_position(new_head.x, new_head.y);
-  blocks.unshift(new_head);
-  if (!grow) {
-    blocks.pop();
-  } else {
-    console.log("Grow", blocks);
-  }
+  return new_head;
 }
 
 function update_head_position(x, y) {
@@ -123,35 +128,30 @@ function change_direction(direction) {
   const pressed_key = direction.toLowerCase();
   for (let key in keymap) {
     if (keymap[key].includes(pressed_key)) {
-      console.log("Pressed Key:", pressed_key[0].toUpperCase() + pressed_key.slice(1).toLowerCase());
       switch (key) {
         case "up":
           if (y_velocity === 0) {
             x_velocity = 0;
             y_velocity = -1;
           }
-          console.log("Changed Direction: Up");
           break;
         case "right":
           if (x_velocity === 0) {
             x_velocity = 1;
             y_velocity = 0;
           }
-          console.log("Changed Direction: Right");
           break;
         case "down":
           if (y_velocity === 0) {
             x_velocity = 0;
             y_velocity = 1;
           }
-          console.log("Changed Direction: Down");
           break;
         case "left":
           if (x_velocity === 0) {
             x_velocity = -1;
             y_velocity = 0;
           }
-          console.log("Changed Direction: Left");
           break;
       }
       break;
@@ -164,13 +164,13 @@ function handle_change_direction_button_click(event) {
   change_direction(direction);
 }
 
-function draw() {
+function draw(blocks_color = "skyblue", target_color = "lime") {
   // Draw Target
-  ctx.fillStyle = "lime";
+  ctx.fillStyle = target_color;
   ctx.fillRect(target.x, target.y, cell_size, cell_size);
 
   // Draw Blocks
-  ctx.fillStyle = "skyblue";
+  ctx.fillStyle = blocks_color;
   blocks.forEach(block => ctx.fillRect(block.x, block.y, cell_size, cell_size));
 }
 
@@ -181,19 +181,38 @@ function respawn_target() {
 }
 
 function animate(timestamp) {
+  let is_next_move_valid = true;
   const frame_time = timestamp - previous_timestamp;
   if (frame_time > game_tick) {
     previous_timestamp = timestamp;
-    const distance = Math.sqrt(Math.pow(target.x - head.x, 2) + Math.pow(target.y - head.y, 2));
-    console.log("Distance: " + distance);
+    const distance = calculate_distance(head.x, head.y, target.x, target.y);
     if (distance < cell_size / 2) {
-      move(true);
+      is_next_move_valid = move(true);
       respawn_target();
-    } else move();
+    } else is_next_move_valid = move();
+
     clear_canvas();
-    draw();
+    if (!is_next_move_valid) {
+      cancelAnimationFrame(animate);
+      draw("red");
+    } else draw();
   }
-  requestAnimationFrame(animate);
+  if (is_next_move_valid) requestAnimationFrame(animate);
+}
+
+function calculate_distance(x1, y1, x2, y2) {
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
+function is_game_over(x, y) {
+  if (x >= canvas_size || x < 0 || y >= canvas_size || y < 0) return true;
+  if (blocks.length > 5) {
+    for (let i = 1; i < blocks.length; i++) {
+      const self_hit = calculate_distance(x, y, blocks[i].x, blocks[i].y) < cell_size / 4;
+      if (self_hit) return true;
+    }
+  }
+  return false;
 }
 
 init();
