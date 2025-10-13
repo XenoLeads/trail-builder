@@ -11,7 +11,7 @@ const move_buttons = [button_move_up, button_move_right, button_move_down, butto
 let canvas_size;
 let cell_size;
 let game_tick = 100;
-let x_velocity = 1;
+let x_velocity = 0;
 let y_velocity = 0;
 let previous_timestamp = 0;
 const blocks = [];
