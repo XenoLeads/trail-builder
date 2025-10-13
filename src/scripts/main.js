@@ -15,6 +15,10 @@ let x_velocity = 0;
 let y_velocity = 0;
 let previous_timestamp = 0;
 const blocks = [];
+const target = {
+  x: null,
+  y: null,
+};
 
 function init() {
   set_canvas_size();
@@ -26,6 +30,10 @@ function init() {
     x: random_available_cell[0],
     y: random_available_cell[1],
   });
+
+  const random_available_cell_for_target = get_random_available_cell();
+  target.x = random_available_cell_for_target[0];
+  target.y = random_available_cell_for_target[1];
 
   draw();
   animate(previous_timestamp);
@@ -59,7 +67,12 @@ function clear_canvas() {
 
 function get_available_cells() {
   const available_cells = [];
-  for (let i = 0; i < canvas_size; i += cell_size) for (let j = 0; j < canvas_size; j += cell_size) available_cells.push([i, j]);
+  for (let i = 0; i < canvas_size; i += cell_size)
+    for (let j = 0; j < canvas_size; j += cell_size) {
+      const is_the_cell_occupied_by_a_block = () => blocks.some(block => block.x === i && block.y === j);
+      if (is_the_cell_occupied_by_a_block()) continue;
+      available_cells.push([i, j]);
+    }
   return available_cells;
 }
 
@@ -133,8 +146,13 @@ function handle_change_direction_button_click(event) {
 }
 
 function draw() {
+  // Draw Target
+  ctx.fillStyle = "lime";
+  ctx.fillRect(target.x, target.y, cell_size, cell_size);
+
+  // Draw Blocks
   ctx.fillStyle = "skyblue";
-  ctx.fillRect(blocks[0].x, blocks[0].y, cell_size, cell_size);
+  blocks.forEach(block => ctx.fillRect(block.x, block.y, cell_size, cell_size));
 }
 
 function animate(timestamp) {
