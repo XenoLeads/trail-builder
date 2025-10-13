@@ -2,9 +2,19 @@ import "../styles/style.css";
 
 const canvas = document.getElementsByClassName("canvas")[0];
 const ctx = canvas.getContext("2d");
+const button_move_up = document.getElementsByClassName("button-move-up")[0];
+const button_move_right = document.getElementsByClassName("button-move-right")[0];
+const button_move_down = document.getElementsByClassName("button-move-down")[0];
+const button_move_left = document.getElementsByClassName("button-move-left")[0];
+const move_buttons = [button_move_up, button_move_right, button_move_down, button_move_left];
 
 let canvas_size;
 let cell_size;
+let game_tick = 100;
+let x_velocity = 1;
+let y_velocity = 0;
+let previous_timestamp = 0;
+const blocks = [];
 
 function init() {
   set_canvas_size();
@@ -12,9 +22,18 @@ function init() {
   clear_canvas();
 
   const random_available_cell = get_random_available_cell();
-  ctx.fillStyle = "skyblue";
-  ctx.fillRect(random_available_cell[0], random_available_cell[1], cell_size, cell_size);
+  blocks.push({
+    x: random_available_cell[0],
+    y: random_available_cell[1],
+  });
+
+  draw();
+  animate(previous_timestamp);
+
   window.onresize = set_canvas_size;
+  window.onkeydown = event => change_direction(event.key.toLowerCase());
+
+  move_buttons.map(move_button => (move_button.onclick = handle_change_direction_button_click));
 }
 
 function set_canvas_size() {
@@ -53,6 +72,79 @@ function get_random_range_value(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function move() {
+  blocks[0].x += cell_size * x_velocity;
+  blocks[0].y += cell_size * y_velocity;
+}
+
+function change_direction(direction) {
+  const keymap = {
+    up: ["up", "arrowup", "w", "8"],
+    right: ["right", "arrowright", "d", "6"],
+    down: ["down", "arrowdown", "s", "2"],
+    left: ["left", "arrowleft", "a", "4"],
+  };
+  const pressed_key = direction.toLowerCase();
+  console.log("Pressed Key:", pressed_key[0].toUpperCase() + pressed_key.slice(1).toLowerCase());
+  for (let key in keymap) {
+    if (keymap[key].includes(pressed_key)) {
+      switch (key) {
+        case "up":
+          if (y_velocity === 0) {
+            x_velocity = 0;
+            y_velocity = -1;
+          }
+          console.log("Changed Direction: Up");
+          break;
+        case "right":
+          if (x_velocity === 0) {
+            x_velocity = 1;
+            y_velocity = 0;
+          }
+          console.log("Changed Direction: Right");
+          break;
+        case "down":
+          if (y_velocity === 0) {
+            x_velocity = 0;
+            y_velocity = 1;
+          }
+          console.log("Changed Direction: Down");
+          break;
+        case "left":
+          if (x_velocity === 0) {
+            x_velocity = -1;
+            y_velocity = 0;
+          }
+          console.log("Changed Direction: Left");
+          break;
+      }
+      break;
+    }
+  }
+}
+
+function handle_change_direction_button_click(event) {
+  const direction = event.currentTarget.dataset.direction;
+  change_direction(direction);
+}
+
+function draw() {
+  ctx.fillStyle = "skyblue";
+  ctx.fillRect(blocks[0].x, blocks[0].y, cell_size, cell_size);
+}
+
+function animate(timestamp) {
+  const frame_time = timestamp - previous_timestamp;
+  if (frame_time > game_tick) {
+    console.log("Frame Time:", frame_time);
+    previous_timestamp = timestamp;
+    move();
+    clear_canvas();
+    draw();
+  }
+  requestAnimationFrame(animate);
 }
 
 init();
