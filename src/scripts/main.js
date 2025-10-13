@@ -183,9 +183,10 @@ function respawn_target() {
 function animate(timestamp) {
   const frame_time = timestamp - previous_timestamp;
   if (frame_time > game_tick) {
-    console.log("Frame Time:", frame_time);
     previous_timestamp = timestamp;
-    if (head.x === target.x && head.y === target.y) {
+    const distance = Math.sqrt(Math.pow(target.x - head.x, 2) + Math.pow(target.y - head.y, 2));
+    console.log("Distance: " + distance);
+    if (distance < cell_size / 2) {
       move(true);
       respawn_target();
     } else move();
