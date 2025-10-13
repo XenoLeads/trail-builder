@@ -10,6 +10,7 @@ const move_buttons = [button_move_up, button_move_right, button_move_down, butto
 
 let canvas_size;
 let cell_size;
+let grid_size = 15;
 let game_tick = 100;
 let x_velocity = 0;
 let y_velocity = 0;
@@ -57,12 +58,17 @@ function set_canvas_size() {
   canvas.height = canvas_size;
   function get_canvas_size(margin = 7 / 10) {
     const is_landscape = window.innerHeight < window.innerWidth;
-    if (is_landscape) return window.innerHeight * margin;
-    return window.innerWidth * margin;
+    if (is_landscape) return get_nearest_rounded_multiple(window.innerHeight * margin, grid_size);
+    return get_nearest_rounded_multiple(window.innerWidth * margin, grid_size);
   }
 }
-function set_cell_size(blocks = 15) {
-  cell_size = canvas_size / blocks;
+
+function get_nearest_rounded_multiple(number, nearest_multiple_number) {
+  return Math.round(number / nearest_multiple_number) * nearest_multiple_number;
+}
+
+function set_cell_size() {
+  cell_size = canvas_size / grid_size;
 }
 
 function clear_canvas() {
