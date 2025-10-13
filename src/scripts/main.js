@@ -13,6 +13,10 @@ let cell_size;
 let game_tick = 100;
 let x_velocity = 0;
 let y_velocity = 0;
+const head = {
+  x: null,
+  y: null,
+};
 let previous_timestamp = 0;
 const blocks = [];
 const target = {
@@ -30,6 +34,7 @@ function init() {
     x: random_available_cell[0],
     y: random_available_cell[1],
   });
+  update_head_position(blocks[0].x, blocks[0].y);
 
   const random_available_cell_for_target = get_random_available_cell();
   target.x = random_available_cell_for_target[0];
@@ -89,9 +94,23 @@ function get_random_range_value(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function move() {
-  blocks[0].x += cell_size * x_velocity;
-  blocks[0].y += cell_size * y_velocity;
+function move(grow = false) {
+  const new_head = {
+    x: (head.x += cell_size * x_velocity),
+    y: (head.y += cell_size * y_velocity),
+  };
+  update_head_position(new_head.x, new_head.y);
+  blocks.unshift(new_head);
+  if (!grow) {
+    blocks.pop();
+  } else {
+    console.log("Grow", blocks);
+  }
+}
+
+function update_head_position(x, y) {
+  head.x = x;
+  head.y = y;
 }
 
 function change_direction(direction) {
@@ -102,9 +121,9 @@ function change_direction(direction) {
     left: ["left", "arrowleft", "a", "4"],
   };
   const pressed_key = direction.toLowerCase();
-  console.log("Pressed Key:", pressed_key[0].toUpperCase() + pressed_key.slice(1).toLowerCase());
   for (let key in keymap) {
     if (keymap[key].includes(pressed_key)) {
+      console.log("Pressed Key:", pressed_key[0].toUpperCase() + pressed_key.slice(1).toLowerCase());
       switch (key) {
         case "up":
           if (y_velocity === 0) {
@@ -155,12 +174,21 @@ function draw() {
   blocks.forEach(block => ctx.fillRect(block.x, block.y, cell_size, cell_size));
 }
 
+function respawn_target() {
+  const random_cell = get_random_available_cell();
+  target.x = random_cell[0];
+  target.y = random_cell[1];
+}
+
 function animate(timestamp) {
   const frame_time = timestamp - previous_timestamp;
   if (frame_time > game_tick) {
     console.log("Frame Time:", frame_time);
     previous_timestamp = timestamp;
-    move();
+    if (head.x === target.x && head.y === target.y) {
+      move(true);
+      respawn_target();
+    } else move();
     clear_canvas();
     draw();
   }
