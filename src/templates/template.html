@@ -7,8 +7,12 @@
   </head>
   <body style="display: none" id="body">
     <div id="container">
+      <section class="score-container">
+        <p class="current-score-container">Score: <span class="current-score">0</span></p>
+        <p class="high-score-container">High Score: <span class="high-score">0</span></p>
+      </section>
       <canvas class="canvas"></canvas>
-      <div class="game-controls">
+      <section class="game-controls">
         <button class="move-button button-move-up" data-direction="up">
           <img src="../assets/icons/arrows/arrow_up.svg" alt="" class="move-button-icon" />
         </button>
@@ -21,7 +25,7 @@
         <button class="move-button button-move-left" data-direction="left">
           <img src="../assets/icons/arrows/arrow_left.svg" alt="" class="move-button-icon" />
         </button>
-      </div>
+      </section>
       <section class="game-over-panel-container">
         <div class="game-over-panel-overlay"></div>
         <div class="game-over-panel">

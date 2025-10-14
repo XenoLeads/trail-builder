@@ -8,6 +8,8 @@ const button_move_down = document.getElementsByClassName("button-move-down")[0];
 const button_move_left = document.getElementsByClassName("button-move-left")[0];
 const game_over_panel_container = document.getElementsByClassName("game-over-panel-container")[0];
 const restart_game_button = document.getElementsByClassName("restart-game-button")[0];
+const current_score_display = document.getElementsByClassName("current-score")[0];
+const high_score_display = document.getElementsByClassName("high-score")[0];
 const move_buttons = [button_move_up, button_move_right, button_move_down, button_move_left];
 
 let canvas_size;
@@ -16,6 +18,8 @@ let grid_size = 15;
 let game_tick = 100;
 let x_velocity = 0;
 let y_velocity = 0;
+let score = 0;
+let high_score = 0;
 const head = {
   x: null,
   y: null,
@@ -47,7 +51,11 @@ function init() {
   animate(previous_timestamp);
 
   window.onresize = set_canvas_size;
-  window.onkeydown = event => change_direction(event.key.toLowerCase());
+  window.onkeydown = event => {
+    const pressed_key = event.key.toLowerCase();
+    if (pressed_key === "enter" && game_over_panel_container.classList.contains("visible")) restart_game_button.click();
+    else change_direction(pressed_key);
+  };
 
   move_buttons.map(move_button => (move_button.onclick = handle_change_direction_button_click));
 
@@ -201,6 +209,8 @@ function animate(timestamp) {
     if (distance < cell_size / 2) {
       is_next_move_valid = move(true);
       respawn_target();
+      increment_score();
+      update_score_display(score, high_score);
     } else is_next_move_valid = move();
 
     clear_canvas();
@@ -231,6 +241,7 @@ function is_game_over(x, y) {
 function restart_game() {
   clear_canvas();
   reset_variables();
+  update_score_display(score, high_score);
   const random_available_cell = get_random_available_cell();
   blocks.push({
     x: random_available_cell[0],
@@ -253,6 +264,17 @@ function reset_variables() {
   previous_timestamp = 0;
   x_velocity = 0;
   y_velocity = 0;
+  score = 0;
+}
+
+function update_score_display(score = null, high_score = null) {
+  if (Number.isInteger(score)) current_score_display.textContent = score;
+  if (Number.isInteger(high_score)) high_score_display.textContent = high_score;
+}
+
+function increment_score() {
+  score++;
+  if (score > high_score) high_score = score;
 }
 
 function game_over_panel(show = true) {
