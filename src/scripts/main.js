@@ -92,7 +92,6 @@ function init() {
     } else {
       previous_game_tick = new_game_tick;
       game_tick = new_game_tick;
-      restart_game();
       game_tick_input.setCustomValidity("");
       game_tick_input.reportValidity();
     }
