@@ -6,15 +6,20 @@
     <title>Trail Builder</title>
   </head>
   <body style="display: none" id="body">
-    <div id="container">
-      <div class="input-container">
-        <label class="grid-size-label input-label">
-          Grid Size: <input type="number" min="10" max="20" value="15" class="grid-size-input input" />
-        </label>
-        <label class="game-tick-label input-label">
-          Game Tick (ms): <input type="number" min="50" max="2000" value="100" class="game-tick-input input" />
-        </label>
-      </div>
+    <div id="container" class="settings-visible">
+      <header class="header">
+        <button class="toggle-settings-button">
+          <img src="../assets/icons/settings.svg" alt="" class="icon toggle-settings-button-icon">
+        </button>
+        <div class="input-container">
+          <label class="grid-size-label input-label">
+            Grid Size: <input type="number" min="10" max="20" value="15" class="grid-size-input input" />
+          </label>
+          <label class="game-tick-label input-label">
+            Game Tick (ms): <input type="number" min="50" max="2000" value="100" class="game-tick-input input" />
+          </label>
+        </div>
+      </header>
       <section class="score-container">
         <p class="current-score-container">Score: <span class="current-score">0</span></p>
         <p class="high-score-container">High Score: <span class="high-score">0</span></p>

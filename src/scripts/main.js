@@ -1,5 +1,6 @@
 import "../styles/style.css";
 
+const container = document.getElementById("container");
 const canvas = document.getElementsByClassName("canvas")[0];
 const ctx = canvas.getContext("2d");
 const button_move_up = document.getElementsByClassName("button-move-up")[0];
@@ -12,6 +13,7 @@ const current_score_display = document.getElementsByClassName("current-score")[0
 const high_score_display = document.getElementsByClassName("high-score")[0];
 const grid_size_input = document.getElementsByClassName("grid-size-input")[0];
 const game_tick_input = document.getElementsByClassName("game-tick-input")[0];
+const toggle_settings_button = document.getElementsByClassName("toggle-settings-button")[0];
 const input_elements = [grid_size_input, game_tick_input];
 const move_buttons = [button_move_up, button_move_right, button_move_down, button_move_left];
 
@@ -96,6 +98,10 @@ function init() {
       game_tick_input.setCustomValidity("");
       game_tick_input.reportValidity();
     }
+  };
+
+  toggle_settings_button.onclick = () => {
+    container.classList.toggle("settings-visible");
   };
 }
 
