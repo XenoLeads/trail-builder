@@ -19,7 +19,8 @@ let game_tick = 100;
 let x_velocity = 0;
 let y_velocity = 0;
 let score = 0;
-let high_score = 0;
+let stored_high_score = parseInt(localStorage.getItem("high_score"));
+let high_score = stored_high_score || 0;
 const head = {
   x: null,
   y: null,
@@ -49,6 +50,7 @@ function init() {
 
   draw();
   animate(previous_timestamp);
+  update_score_display(score, high_score);
 
   window.onresize = set_canvas_size;
   window.onkeydown = event => {
@@ -274,7 +276,10 @@ function update_score_display(score = null, high_score = null) {
 
 function increment_score() {
   score++;
-  if (score > high_score) high_score = score;
+  if (score > high_score) {
+    high_score = score;
+    localStorage.setItem("high_score", high_score);
+  }
 }
 
 function game_over_panel(show = true) {
