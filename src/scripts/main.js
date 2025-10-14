@@ -11,6 +11,8 @@ const restart_game_button = document.getElementsByClassName("restart-game-button
 const current_score_display = document.getElementsByClassName("current-score")[0];
 const high_score_display = document.getElementsByClassName("high-score")[0];
 const grid_size_input = document.getElementsByClassName("grid-size-input")[0];
+const game_tick_input = document.getElementsByClassName("game-tick-input")[0];
+const input_elements = [grid_size_input, game_tick_input];
 const move_buttons = [button_move_up, button_move_right, button_move_down, button_move_left];
 
 let canvas_size;
@@ -21,6 +23,11 @@ const grid_size_limit = {
 };
 let previous_grid_size = 15;
 let grid_size = 15;
+let previous_game_tick = 100;
+const game_tick_limit = {
+  min: 50,
+  max: 2000,
+};
 let game_tick = 100;
 let x_velocity = 0;
 let y_velocity = 0;
@@ -48,7 +55,7 @@ function init() {
   window.onkeydown = event => {
     const pressed_key = event.key.toLowerCase();
     if (pressed_key === "enter" && game_over_panel_container.classList.contains("visible")) restart_game_button.click();
-    else if (!is_grid_size_input_active()) change_direction(pressed_key);
+    else if (!active_input_element()) change_direction(pressed_key);
   };
 
   move_buttons.map(move_button => (move_button.onclick = handle_change_direction_button_click));
@@ -58,21 +65,42 @@ function init() {
     game_over_panel(false);
     restart_game();
   };
-  grid_size_input.addEventListener("input", () => {
+
+  grid_size_input.oninput = () => {
     const new_grid_size = parseInt(grid_size_input.value) || 0;
     if (new_grid_size === previous_grid_size) return;
-    if (new_grid_size > grid_size_limit.max) {
-      grid_size_input.value = grid_size_limit.max;
-    } else if (!(new_grid_size < grid_size_limit.min)) {
+    if (new_grid_size < grid_size_limit.min || new_grid_size > grid_size_limit.max) {
+      if (new_grid_size > grid_size_limit.max) grid_size_input.value = grid_size_limit.max;
+      grid_size_input.setCustomValidity(`Grid size must be between ${grid_size_limit.min} and ${grid_size_limit.max} cells.`);
+      grid_size_input.reportValidity();
+    } else {
       previous_grid_size = new_grid_size;
       grid_size = new_grid_size;
       restart_game();
+      grid_size_input.setCustomValidity("");
+      grid_size_input.reportValidity();
     }
-  });
+  };
+
+  game_tick_input.oninput = () => {
+    const new_game_tick = parseInt(game_tick_input.value) || 0;
+    if (new_game_tick === previous_game_tick) return;
+    if (new_game_tick < game_tick_limit.min || new_game_tick > game_tick_limit.max) {
+      if (new_game_tick > game_tick_limit.max) game_tick_input.value = game_tick_limit.max;
+      game_tick_input.setCustomValidity(`Game tick must be between ${game_tick_limit.min} ms and ${game_tick_limit.max} ms.`);
+      game_tick_input.reportValidity();
+    } else {
+      previous_game_tick = new_game_tick;
+      game_tick = new_game_tick;
+      restart_game();
+      game_tick_input.setCustomValidity("");
+      game_tick_input.reportValidity();
+    }
+  };
 }
 
-function is_grid_size_input_active() {
-  return document.activeElement === grid_size_input;
+function active_input_element() {
+  return input_elements.includes(document.activeElement);
 }
 
 function set_canvas_size() {
@@ -189,7 +217,7 @@ function change_direction(direction) {
 }
 
 function handle_change_direction_button_click(event) {
-  if (is_grid_size_input_active()) return;
+  if (active_input_element()) return;
   const direction = event.currentTarget.dataset.direction;
   change_direction(direction);
 }
