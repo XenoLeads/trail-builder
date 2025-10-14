@@ -22,14 +22,14 @@ let score = 0;
 let stored_high_score = parseInt(localStorage.getItem("high_score"));
 let high_score = stored_high_score || 0;
 const head = {
-  x: null,
-  y: null,
+  row: null,
+  column: null,
 };
 let previous_timestamp = 0;
 const blocks = [];
 const target = {
-  x: null,
-  y: null,
+  row: null,
+  column: null,
 };
 
 function init() {
@@ -39,20 +39,23 @@ function init() {
 
   const random_available_cell = get_random_available_cell();
   blocks.push({
-    x: random_available_cell[0],
-    y: random_available_cell[1],
+    row: random_available_cell[0],
+    column: random_available_cell[1],
   });
-  update_head_position(blocks[0].x, blocks[0].y);
+  update_head_position(blocks[0].row, blocks[0].column);
 
   const random_available_cell_for_target = get_random_available_cell();
-  target.x = random_available_cell_for_target[0];
-  target.y = random_available_cell_for_target[1];
+  target.row = random_available_cell_for_target[0];
+  target.column = random_available_cell_for_target[1];
 
   draw();
   animate(previous_timestamp);
   update_score_display(score, high_score);
 
-  window.onresize = set_canvas_size;
+  window.onresize = () => {
+    set_canvas_size();
+    set_cell_size();
+  };
   window.onkeydown = event => {
     const pressed_key = event.key.toLowerCase();
     if (pressed_key === "enter" && game_over_panel_container.classList.contains("visible")) restart_game_button.click();
@@ -72,7 +75,7 @@ function set_canvas_size() {
   canvas_size = get_canvas_size();
   canvas.width = canvas_size;
   canvas.height = canvas_size;
-  function get_canvas_size(margin = 7 / 10) {
+  function get_canvas_size(margin = 3 / 5) {
     const is_landscape = window.innerHeight < window.innerWidth;
     if (is_landscape) return get_nearest_rounded_multiple(window.innerHeight * margin, grid_size);
     return get_nearest_rounded_multiple(window.innerWidth * margin, grid_size);
@@ -94,9 +97,9 @@ function clear_canvas() {
 
 function get_available_cells() {
   const available_cells = [];
-  for (let i = 0; i < canvas_size; i += cell_size)
-    for (let j = 0; j < canvas_size; j += cell_size) {
-      const is_the_cell_occupied_by_a_block = () => blocks.some(block => block.x === i && block.y === j);
+  for (let i = 0; i < grid_size; i++)
+    for (let j = 0; j < grid_size; j++) {
+      const is_the_cell_occupied_by_a_block = () => blocks.some(block => block.row === i && block.column === j);
       if (is_the_cell_occupied_by_a_block()) continue;
       available_cells.push([i, j]);
     }
@@ -119,8 +122,8 @@ function get_random_range_value(min, max) {
 function move(grow = false) {
   const new_head = get_next_head();
   // Return false if the game will be over after the next move
-  if (is_game_over(new_head.x, new_head.y)) return false;
-  update_head_position(new_head.x, new_head.y);
+  if (is_game_over(new_head.row, new_head.column)) return false;
+  update_head_position(new_head.row, new_head.column);
   blocks.unshift(new_head);
   if (!grow) blocks.pop();
   // Return true if the move is valid
@@ -129,15 +132,15 @@ function move(grow = false) {
 
 function get_next_head() {
   const new_head = {
-    x: (head.x += cell_size * x_velocity),
-    y: (head.y += cell_size * y_velocity),
+    row: (head.row += x_velocity),
+    column: (head.column += y_velocity),
   };
   return new_head;
 }
 
-function update_head_position(x, y) {
-  head.x = x;
-  head.y = y;
+function update_head_position(row, column) {
+  head.row = row;
+  head.column = column;
 }
 
 function change_direction(direction) {
@@ -189,21 +192,23 @@ function handle_change_direction_button_click(event) {
 function draw(head_color = "#87ceeb", body_color_1 = " #66c1e5", body_color_2 = "#7ccae9", target_color = "#01ff00") {
   // Draw Target
   ctx.fillStyle = target_color;
-  ctx.fillRect(target.x, target.y, cell_size, cell_size);
+  const target_coordinates = [target.row * cell_size, target.column * cell_size];
+  ctx.fillRect(target_coordinates[0], target_coordinates[1], cell_size, cell_size);
 
   // Draw Blocks
   blocks.forEach((block, index) => {
     if (index === 0) ctx.fillStyle = head_color;
     else if (index % 2 === 0) ctx.fillStyle = body_color_1;
     else ctx.fillStyle = body_color_2;
-    ctx.fillRect(block.x, block.y, cell_size, cell_size);
+    const block_coordinates = [block.row * cell_size, block.column * cell_size];
+    ctx.fillRect(block_coordinates[0], block_coordinates[1], cell_size, cell_size);
   });
 }
 
 function respawn_target() {
   const random_cell = get_random_available_cell();
-  target.x = random_cell[0];
-  target.y = random_cell[1];
+  target.row = random_cell[0];
+  target.column = random_cell[1];
 }
 
 function animate(timestamp) {
@@ -211,7 +216,7 @@ function animate(timestamp) {
   const frame_time = timestamp - previous_timestamp;
   if (frame_time > game_tick) {
     previous_timestamp = timestamp;
-    const hit_the_target = head.x === target.x && head.y === target.y;
+    const hit_the_target = head.row === target.row && head.column === target.column;
     if (hit_the_target) {
       is_next_move_valid = move(true);
       respawn_target();
@@ -229,11 +234,11 @@ function animate(timestamp) {
   if (is_next_move_valid) requestAnimationFrame(animate);
 }
 
-function is_game_over(x, y) {
-  if (x >= canvas_size || x < 0 || y >= canvas_size || y < 0) return true;
+function is_game_over(row, column) {
+  if (row >= grid_size || row < 0 || column >= grid_size || column < 0) return true;
   if (blocks.length > 5) {
     for (let i = 1; i < blocks.length; i++) {
-      const self_hit = x === blocks[i].x && y === blocks[i].y;
+      const self_hit = row === blocks[i].row && column === blocks[i].column;
       if (self_hit) return true;
     }
   }
@@ -246,22 +251,22 @@ function restart_game() {
   update_score_display(score, high_score);
   const random_available_cell = get_random_available_cell();
   blocks.push({
-    x: random_available_cell[0],
-    y: random_available_cell[1],
+    row: random_available_cell[0],
+    column: random_available_cell[1],
   });
-  update_head_position(blocks[0].x, blocks[0].y);
+  update_head_position(blocks[0].row, blocks[0].column);
   const random_available_cell_for_target = get_random_available_cell();
-  target.x = random_available_cell_for_target[0];
-  target.y = random_available_cell_for_target[1];
+  target.row = random_available_cell_for_target[0];
+  target.column = random_available_cell_for_target[1];
   draw();
   animate(previous_timestamp);
 }
 
 function reset_variables() {
-  head.x = null;
-  head.y = null;
-  target.x = null;
-  target.y = null;
+  head.row = null;
+  head.column = null;
+  target.row = null;
+  target.column = null;
   blocks.length = 0;
   previous_timestamp = 0;
   x_velocity = 0;
