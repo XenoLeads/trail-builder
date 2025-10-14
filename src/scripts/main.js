@@ -186,14 +186,18 @@ function handle_change_direction_button_click(event) {
   change_direction(direction);
 }
 
-function draw(blocks_color = "skyblue", target_color = "lime") {
+function draw(head_color = "#87ceeb", body_color_1 = " #66c1e5", body_color_2 = "#7ccae9", target_color = "#01ff00") {
   // Draw Target
   ctx.fillStyle = target_color;
   ctx.fillRect(target.x, target.y, cell_size, cell_size);
 
   // Draw Blocks
-  ctx.fillStyle = blocks_color;
-  blocks.forEach(block => ctx.fillRect(block.x, block.y, cell_size, cell_size));
+  blocks.forEach((block, index) => {
+    if (index === 0) ctx.fillStyle = head_color;
+    else if (index % 2 === 0) ctx.fillStyle = body_color_1;
+    else ctx.fillStyle = body_color_2;
+    ctx.fillRect(block.x, block.y, cell_size, cell_size);
+  });
 }
 
 function respawn_target() {
@@ -218,7 +222,7 @@ function animate(timestamp) {
     clear_canvas();
     if (!is_next_move_valid) {
       cancelAnimationFrame(animate);
-      draw("red");
+      draw("#ff0000", "#cc0000", "#e60000");
       game_over_panel();
     } else draw();
   }
