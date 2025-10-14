@@ -10,10 +10,16 @@ const game_over_panel_container = document.getElementsByClassName("game-over-pan
 const restart_game_button = document.getElementsByClassName("restart-game-button")[0];
 const current_score_display = document.getElementsByClassName("current-score")[0];
 const high_score_display = document.getElementsByClassName("high-score")[0];
+const grid_size_input = document.getElementsByClassName("grid-size-input")[0];
 const move_buttons = [button_move_up, button_move_right, button_move_down, button_move_left];
 
 let canvas_size;
 let cell_size;
+const grid_size_limit = {
+  min: 10,
+  max: 20,
+};
+let previous_grid_size = 15;
 let grid_size = 15;
 let game_tick = 100;
 let x_velocity = 0;
@@ -33,24 +39,7 @@ const target = {
 };
 
 function init() {
-  set_canvas_size();
-  set_cell_size();
-  clear_canvas();
-
-  const random_available_cell = get_random_available_cell();
-  blocks.push({
-    row: random_available_cell[0],
-    column: random_available_cell[1],
-  });
-  update_head_position(blocks[0].row, blocks[0].column);
-
-  const random_available_cell_for_target = get_random_available_cell();
-  target.row = random_available_cell_for_target[0];
-  target.column = random_available_cell_for_target[1];
-
-  draw();
-  animate(previous_timestamp);
-  update_score_display(score, high_score);
+  start_game();
 
   window.onresize = () => {
     set_canvas_size();
@@ -59,7 +48,7 @@ function init() {
   window.onkeydown = event => {
     const pressed_key = event.key.toLowerCase();
     if (pressed_key === "enter" && game_over_panel_container.classList.contains("visible")) restart_game_button.click();
-    else change_direction(pressed_key);
+    else if (!is_grid_size_input_active()) change_direction(pressed_key);
   };
 
   move_buttons.map(move_button => (move_button.onclick = handle_change_direction_button_click));
@@ -69,6 +58,21 @@ function init() {
     game_over_panel(false);
     restart_game();
   };
+  grid_size_input.addEventListener("input", () => {
+    const new_grid_size = parseInt(grid_size_input.value) || 0;
+    if (new_grid_size === previous_grid_size) return;
+    if (new_grid_size > grid_size_limit.max) {
+      grid_size_input.value = grid_size_limit.max;
+    } else if (!(new_grid_size < grid_size_limit.min)) {
+      previous_grid_size = new_grid_size;
+      grid_size = new_grid_size;
+      restart_game();
+    }
+  });
+}
+
+function is_grid_size_input_active() {
+  return document.activeElement === grid_size_input;
 }
 
 function set_canvas_size() {
@@ -185,6 +189,7 @@ function change_direction(direction) {
 }
 
 function handle_change_direction_button_click(event) {
+  if (is_grid_size_input_active()) return;
   const direction = event.currentTarget.dataset.direction;
   change_direction(direction);
 }
@@ -245,21 +250,30 @@ function is_game_over(row, column) {
   return false;
 }
 
-function restart_game() {
+function start_game() {
+  set_canvas_size();
+  set_cell_size();
   clear_canvas();
-  reset_variables();
-  update_score_display(score, high_score);
+
   const random_available_cell = get_random_available_cell();
   blocks.push({
     row: random_available_cell[0],
     column: random_available_cell[1],
   });
   update_head_position(blocks[0].row, blocks[0].column);
+
   const random_available_cell_for_target = get_random_available_cell();
   target.row = random_available_cell_for_target[0];
   target.column = random_available_cell_for_target[1];
+
   draw();
   animate(previous_timestamp);
+  update_score_display(score, high_score);
+}
+
+function restart_game() {
+  reset_variables();
+  start_game();
 }
 
 function reset_variables() {
