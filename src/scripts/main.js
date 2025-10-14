@@ -211,8 +211,8 @@ function animate(timestamp) {
   const frame_time = timestamp - previous_timestamp;
   if (frame_time > game_tick) {
     previous_timestamp = timestamp;
-    const distance = calculate_distance(head.x, head.y, target.x, target.y);
-    if (distance < cell_size / 2) {
+    const hit_the_target = head.x === target.x && head.y === target.y;
+    if (hit_the_target) {
       is_next_move_valid = move(true);
       respawn_target();
       increment_score();
@@ -229,15 +229,11 @@ function animate(timestamp) {
   if (is_next_move_valid) requestAnimationFrame(animate);
 }
 
-function calculate_distance(x1, y1, x2, y2) {
-  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-}
-
 function is_game_over(x, y) {
   if (x >= canvas_size || x < 0 || y >= canvas_size || y < 0) return true;
   if (blocks.length > 5) {
     for (let i = 1; i < blocks.length; i++) {
-      const self_hit = calculate_distance(x, y, blocks[i].x, blocks[i].y) < cell_size / 4;
+      const self_hit = x === blocks[i].x && y === blocks[i].y;
       if (self_hit) return true;
     }
   }
