@@ -65,3 +65,69 @@ body {
 .button-move-left {
   grid-area: left;
 }
+
+/* Game Over Panel */
+.game-over-panel-container {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+.game-over-panel-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.game-over-panel-container.visible > .game-over-panel-overlay {
+  opacity: 1;
+  pointer-events: all;
+}
+.game-over-panel {
+  position: absolute;
+  border: 2px solid white;
+  color: white;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  transform: translateY(50%);
+  opacity: 0;
+  pointer-events: all;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.game-over-panel-container.visible > .game-over-panel {
+  transform: translateY(0);
+  opacity: 1;
+}
+.restart-game-button {
+  font-size: inherit;
+  font-weight: inherit;
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  outline: none;
+  border: 2px solid white;
+  padding: 0.4rem 1rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+.restart-game-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.restart-game-button:active {
+  background-color: rgba(255, 255, 255, 0.2);
+}

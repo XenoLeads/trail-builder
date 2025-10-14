@@ -6,6 +6,8 @@ const button_move_up = document.getElementsByClassName("button-move-up")[0];
 const button_move_right = document.getElementsByClassName("button-move-right")[0];
 const button_move_down = document.getElementsByClassName("button-move-down")[0];
 const button_move_left = document.getElementsByClassName("button-move-left")[0];
+const game_over_panel_container = document.getElementsByClassName("game-over-panel-container")[0];
+const restart_game_button = document.getElementsByClassName("restart-game-button")[0];
 const move_buttons = [button_move_up, button_move_right, button_move_down, button_move_left];
 
 let canvas_size;
@@ -50,6 +52,10 @@ function init() {
   move_buttons.map(move_button => (move_button.onclick = handle_change_direction_button_click));
 
   document.getElementById("body").removeAttribute("style");
+  restart_game_button.onclick = () => {
+    game_over_panel(false);
+    restart_game();
+  };
 }
 
 function set_canvas_size() {
@@ -201,6 +207,7 @@ function animate(timestamp) {
     if (!is_next_move_valid) {
       cancelAnimationFrame(animate);
       draw("red");
+      game_over_panel();
     } else draw();
   }
   if (is_next_move_valid) requestAnimationFrame(animate);
@@ -219,6 +226,38 @@ function is_game_over(x, y) {
     }
   }
   return false;
+}
+
+function restart_game() {
+  clear_canvas();
+  reset_variables();
+  const random_available_cell = get_random_available_cell();
+  blocks.push({
+    x: random_available_cell[0],
+    y: random_available_cell[1],
+  });
+  update_head_position(blocks[0].x, blocks[0].y);
+  const random_available_cell_for_target = get_random_available_cell();
+  target.x = random_available_cell_for_target[0];
+  target.y = random_available_cell_for_target[1];
+  draw();
+  animate(previous_timestamp);
+}
+
+function reset_variables() {
+  head.x = null;
+  head.y = null;
+  target.x = null;
+  target.y = null;
+  blocks.length = 0;
+  previous_timestamp = 0;
+  x_velocity = 0;
+  y_velocity = 0;
+}
+
+function game_over_panel(show = true) {
+  if (show) game_over_panel_container.classList.add("visible");
+  else game_over_panel_container.classList.remove("visible");
 }
 
 init();
