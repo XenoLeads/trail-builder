@@ -29,6 +29,7 @@ const game_tick_limit = {
   max: 2000,
 };
 let game_tick = 100;
+let processed_tick = false;
 let x_velocity = 0;
 let y_velocity = 0;
 let score = 0;
@@ -55,7 +56,7 @@ function init() {
   window.onkeydown = event => {
     const pressed_key = event.key.toLowerCase();
     if (pressed_key === "enter" && game_over_panel_container.classList.contains("visible")) restart_game_button.click();
-    else if (!active_input_element()) change_direction(pressed_key);
+    else if (!active_input_element() && processed_tick) change_direction(pressed_key);
   };
 
   move_buttons.map(move_button => (move_button.onclick = handle_change_direction_button_click));
@@ -210,13 +211,14 @@ function change_direction(direction) {
           }
           break;
       }
+      processed_tick = false;
       break;
     }
   }
 }
 
 function handle_change_direction_button_click(event) {
-  if (active_input_element()) return;
+  if (active_input_element() || !processed_tick) return;
   const direction = event.currentTarget.dataset.direction;
   change_direction(direction);
 }
@@ -247,6 +249,7 @@ function animate(timestamp) {
   let is_next_move_valid = true;
   const frame_time = timestamp - previous_timestamp;
   if (frame_time > game_tick) {
+    processed_tick = true;
     previous_timestamp = timestamp;
     const hit_the_target = head.row === target.row && head.column === target.column;
     if (hit_the_target) {
