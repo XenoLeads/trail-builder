@@ -14,6 +14,8 @@ const high_score_display = document.getElementsByClassName("high-score")[0];
 const grid_size_input = document.getElementsByClassName("grid-size-input")[0];
 const game_tick_input = document.getElementsByClassName("game-tick-input")[0];
 const toggle_settings_button = document.getElementsByClassName("toggle-settings-button")[0];
+const toggle_light_dark_mode_button = document.getElementsByClassName("toggle-light-dark-mode-button")[0];
+const icons = [...document.querySelectorAll("[data-icon-name]")];
 const input_elements = [grid_size_input, game_tick_input];
 const move_buttons = [button_move_up, button_move_right, button_move_down, button_move_left];
 
@@ -48,8 +50,11 @@ const target = {
   column: null,
 };
 
+let is_dark_mode = localStorage.getItem("dark_mode_preference") === "false" ? false : true;
+
 function init() {
   start_game();
+  toggle_color_preference(is_dark_mode);
 
   window.onresize = () => {
     set_canvas_size();
@@ -103,6 +108,40 @@ function init() {
   toggle_settings_button.onclick = () => {
     container.classList.toggle("settings-visible");
   };
+
+  toggle_light_dark_mode_button.onclick = () => {
+    if (container.classList.contains("light-mode")) toggle_color_preference();
+    else toggle_color_preference(false);
+  };
+}
+
+function toggle_color_preference(dark_mode = true) {
+  if (dark_mode) {
+    container.classList.remove("light-mode");
+    is_dark_mode = true;
+  } else {
+    container.classList.add("light-mode");
+    is_dark_mode = false;
+  }
+  change_icon_color(is_dark_mode);
+  clear_canvas();
+  draw(is_dark_mode);
+  localStorage.setItem("dark_mode_preference", dark_mode);
+}
+
+function change_icon_color(dark_icon = true) {
+  icons.map(icon => {
+    const icon_name = icon.dataset.iconName;
+    const icon_group_name = icon.dataset.iconGroup;
+    get_icon(icon_name, dark_icon, icon_group_name).then(module => {
+      const icon_url = module.default;
+      icon.src = icon_url;
+    });
+  });
+}
+
+function get_icon(icon_name, dark = true, additional_path = null) {
+  return import(`../assets/icons/${dark ? "light" : "dark"}${additional_path ? `/${additional_path}` : ""}/${icon_name}.svg`);
 }
 
 function active_input_element() {
@@ -129,7 +168,8 @@ function set_cell_size() {
 }
 
 function clear_canvas() {
-  ctx.fillStyle = "#1C1C1C";
+  if (is_dark_mode) ctx.fillStyle = "#1C1C1C";
+  else ctx.fillStyle = "#E3E3E3";
   ctx.fillRect(0, 0, canvas_size, canvas_size);
 }
 
@@ -229,7 +269,21 @@ function handle_change_direction_button_click(event) {
   change_direction(direction);
 }
 
-function draw(head_color = "#87ceeb", body_color_1 = " #66c1e5", body_color_2 = "#7ccae9", target_color = "#01ff00") {
+function draw(dark_mode = true, head_color = null, body_color_1 = null, body_color_2 = null, target_color = null) {
+  const dark_mode_colors = ["#87ceeb", "#66c1e5", "#7ccae9", "#01ff00"];
+  const light_mode_colors = ["#2ca7d8", "#31b4e0", "#45c2e8", "#00cc44"];
+  if (dark_mode) {
+    if (!head_color) head_color = dark_mode_colors[0];
+    if (!body_color_1) body_color_1 = dark_mode_colors[1];
+    if (!body_color_2) body_color_2 = dark_mode_colors[2];
+    if (!target_color) target_color = dark_mode_colors[3];
+  } else {
+    if (!head_color) head_color = light_mode_colors[0];
+    if (!body_color_1) body_color_1 = light_mode_colors[1];
+    if (!body_color_2) body_color_2 = light_mode_colors[2];
+    if (!target_color) target_color = light_mode_colors[3];
+  }
+
   // Draw Target
   ctx.fillStyle = target_color;
   const target_coordinates = [target.row * cell_size, target.column * cell_size];
@@ -268,9 +322,9 @@ function animate(timestamp) {
     clear_canvas();
     if (!is_next_move_valid) {
       cancelAnimationFrame(animate);
-      draw("#ff0000", "#cc0000", "#e60000");
+      draw(is_dark_mode, "#ff0000", "#cc0000", "#e60000");
       game_over_panel();
-    } else draw();
+    } else draw(is_dark_mode);
   }
   if (is_next_move_valid) requestAnimationFrame(animate);
 }
@@ -302,7 +356,7 @@ function start_game() {
   target.row = random_available_cell_for_target[0];
   target.column = random_available_cell_for_target[1];
 
-  draw();
+  draw(is_dark_mode);
   animate(previous_timestamp);
   update_score_display(score, high_score);
 }
