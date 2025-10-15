@@ -62,8 +62,10 @@ function init() {
   };
   window.onkeydown = event => {
     const pressed_key = event.key.toLowerCase();
-    if (pressed_key === "enter" && game_over_panel_container.classList.contains("visible")) restart_game_button.click();
-    else if (!active_input_element() && processed_tick) change_direction(pressed_key);
+    if (pressed_key === "enter" && game_over_panel_container.classList.contains("visible")) {
+      document.activeElement.blur();
+      restart_game_button.click();
+    } else if (!active_input_element() && processed_tick) change_direction(pressed_key);
   };
 
   move_buttons.map(move_button => (move_button.onclick = handle_change_direction_button_click));
