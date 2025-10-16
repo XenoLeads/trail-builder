@@ -139,12 +139,13 @@
   padding: 1rem;
   transform: translateY(50%);
   opacity: 0;
-  pointer-events: all;
+  pointer-events: none;
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 .game-over-panel-container.visible > .game-over-panel {
   transform: translateY(0);
   opacity: 1;
+  pointer-events: all;
 }
 .restart-game-button {
   font-size: inherit;
