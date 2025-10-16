@@ -338,7 +338,7 @@ function animate(timestamp) {
       game_over_panel(
         true,
         "You Won!",
-        `You've reached the maximum score possible on a ${grid_size}x{$grid_size} grid. Impressive!`
+        `You've reached the maximum score possible on a ${grid_size}x${grid_size} grid. Impressive!`
       );
     }
     processed_tick = true;
