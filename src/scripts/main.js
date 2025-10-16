@@ -8,6 +8,8 @@ const button_move_right = document.getElementsByClassName("button-move-right")[0
 const button_move_down = document.getElementsByClassName("button-move-down")[0];
 const button_move_left = document.getElementsByClassName("button-move-left")[0];
 const game_over_panel_container = document.getElementsByClassName("game-over-panel-container")[0];
+const game_over_panel_heading = document.getElementsByClassName("game-over-panel-heading")[0];
+const game_over_panel_message = document.getElementsByClassName("game-over-panel-message")[0];
 const restart_game_button = document.getElementsByClassName("restart-game-button")[0];
 const current_score_display = document.getElementsByClassName("current-score")[0];
 const high_score_display = document.getElementsByClassName("high-score")[0];
@@ -183,11 +185,12 @@ function get_available_cells() {
       if (is_the_cell_occupied_by_a_block()) continue;
       available_cells.push([i, j]);
     }
-  return available_cells;
+  return available_cells.length > 0 ? available_cells : null;
 }
 
 function get_random_available_cell() {
   const available_cells = get_available_cells();
+  if (available_cells === null) return available_cells;
   const random_index = get_random_range_value(0, available_cells.length - 1);
   const random_cell = available_cells.splice(random_index, 1)[0];
   return random_cell;
@@ -200,17 +203,13 @@ function get_random_range_value(min, max) {
 }
 
 function move(grow = false) {
-  const new_head = get_next_head();
-  // Return false if the game will be over after the next move
-  if (is_game_over(new_head.row, new_head.column)) return false;
+  const new_head = get_next_move();
   update_head_position(new_head.row, new_head.column);
   blocks.unshift(new_head);
   if (!grow) blocks.pop();
-  // Return true if the move is valid
-  return true;
 }
 
-function get_next_head() {
+function get_next_move() {
   const new_head = {
     row: head.row + x_velocity,
     column: head.column + y_velocity,
@@ -304,41 +303,61 @@ function draw(dark_mode = true, head_color = null, body_color_1 = null, body_col
 
 function respawn_target() {
   const random_cell = get_random_available_cell();
+  if (random_cell === null) return random_cell;
   target.row = random_cell[0];
   target.column = random_cell[1];
 }
 
 function animate(timestamp) {
-  let is_next_move_valid = true;
+  let game_over_on_next_move = false;
   const frame_time = timestamp - previous_timestamp;
   if (frame_time > game_tick) {
     previous_timestamp = timestamp;
-    const hit_the_target = head.row === target.row && head.column === target.column;
-    if (hit_the_target) {
-      is_next_move_valid = move(true);
+    const next_move = get_next_move();
+    const hit_the_target_on_next_move = next_move.row === target.row && next_move.column === target.column;
+    game_over_on_next_move = is_game_over(next_move);
+    if (hit_the_target_on_next_move) {
+      move(true);
       respawn_target();
       increment_score();
       update_score_display(score, high_score);
-    } else is_next_move_valid = move();
+    } else move();
 
-    if (!is_next_move_valid) {
+    if (game_over_on_next_move) {
       cancelAnimationFrame(animate);
       draw(is_dark_mode, "#ff0000", "#cc0000", "#e60000");
-      game_over_panel();
+      if (game_over_on_next_move === 1) game_over_panel(true, "", "You crashed into a wall. Watch those edges next time!");
+      else game_over_panel(true, "", "You ran into yourself. Careful not to trap your own tail!");
     } else draw(is_dark_mode);
+
+    if (player_won()) {
+      cancelAnimationFrame(animate);
+      game_over_panel(
+        true,
+        "You Won!",
+        `You've reached the maximum score possible on a ${grid_size}x{$grid_size} grid. Impressive!`
+      );
+    }
     processed_tick = true;
   }
-  if (is_next_move_valid) requestAnimationFrame(animate);
+  if (!game_over_on_next_move && !player_won()) requestAnimationFrame(animate);
 }
 
-function is_game_over(row, column) {
-  if (row >= grid_size || row < 0 || column >= grid_size || column < 0) return true;
+function is_game_over(move) {
+  const row = move.row;
+  const column = move.column;
+  if (row >= grid_size || row < 0 || column >= grid_size || column < 0) return 1;
   if (blocks.length > 5) {
     for (let i = 1; i < blocks.length; i++) {
       const self_hit = row === blocks[i].row && column === blocks[i].column;
-      if (self_hit) return true;
+      if (self_hit) return 2;
     }
   }
+  return false;
+}
+
+function player_won() {
+  if (get_available_cells() === null) return true;
   return false;
 }
 
@@ -393,7 +412,9 @@ function increment_score() {
   }
 }
 
-function game_over_panel(show = true) {
+function game_over_panel(show = true, heading = "", message = "") {
+  if (heading) game_over_panel_heading.textContent = heading;
+  if (message) game_over_panel_message.textContent = message;
   if (show) game_over_panel_container.classList.add("visible");
   else game_over_panel_container.classList.remove("visible");
 }
