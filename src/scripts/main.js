@@ -316,6 +316,14 @@ function animate(timestamp) {
     const next_move = get_next_move();
     const hit_the_target_on_next_move = next_move.row === target.row && next_move.column === target.column;
     game_over_on_next_move = is_game_over(next_move);
+
+    if (game_over_on_next_move) {
+      cancelAnimationFrame(animate);
+      draw(is_dark_mode, "#ff0000", "#cc0000", "#e60000");
+      if (game_over_on_next_move === 1) game_over_panel(true, "", "You crashed into a wall. Watch those edges next time!");
+      else game_over_panel(true, "", "You ran into yourself. Careful not to trap your own tail!");
+    }
+
     if (hit_the_target_on_next_move) {
       move(true);
       respawn_target();
@@ -323,12 +331,7 @@ function animate(timestamp) {
       update_score_display(score, high_score);
     } else move();
 
-    if (game_over_on_next_move) {
-      cancelAnimationFrame(animate);
-      draw(is_dark_mode, "#ff0000", "#cc0000", "#e60000");
-      if (game_over_on_next_move === 1) game_over_panel(true, "", "You crashed into a wall. Watch those edges next time!");
-      else game_over_panel(true, "", "You ran into yourself. Careful not to trap your own tail!");
-    } else draw(is_dark_mode);
+    if (!game_over_on_next_move) draw(is_dark_mode);
 
     if (player_won()) {
       cancelAnimationFrame(animate);
