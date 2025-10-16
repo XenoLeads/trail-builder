@@ -9,14 +9,24 @@
   <body style="display: none" id="body">
     <div id="container">
       <header class="header">
-        <button class="toggle-settings-button">
-          <img
-            src="../assets/icons/light/settings.svg"
-            alt=""
-            class="icon toggle-settings-button-icon"
-            data-icon-name="settings"
-          />
-        </button>
+        <div class="toggle-buttons">
+          <button class="toggle-settings-button">
+            <img
+              src="../assets/icons/light/settings.svg"
+              alt=""
+              class="icon toggle-settings-button-icon"
+              data-icon-name="settings"
+            />
+          </button>
+          <button class="toggle-light-dark-mode-button">
+            <img
+              src="../assets/icons/light/toggle-mode.svg"
+              alt=""
+              class="icon light-dark-mode-icon"
+              data-icon-name="toggle-mode"
+            />
+          </button>
+        </div>
         <div class="input-container">
           <label class="grid-size-label input-label">
             Grid Size: <input type="number" min="10" max="20" value="15" class="grid-size-input input" name="grid-size" />
@@ -25,66 +35,63 @@
             Tick (ms): <input type="number" min="50" max="2000" value="100" class="game-tick-input input" name="game-tick" />
           </label>
         </div>
-        <button class="toggle-light-dark-mode-button">
-          <img
-            src="../assets/icons/light/toggle-mode.svg"
-            alt=""
-            class="icon light-dark-mode-icon"
-            data-icon-name="toggle-mode"
-          />
-        </button>
       </header>
-      <section class="score-container">
-        <p class="current-score-container">Score: <span class="current-score">0</span></p>
-        <p class="high-score-container">High Score: <span class="high-score">0</span></p>
-      </section>
-      <canvas class="canvas"></canvas>
-      <section class="game-controls">
-        <button class="move-button button-move-up" data-direction="up">
-          <img
-            src="../assets/icons/light/arrows/arrow_up.svg"
-            alt=""
-            class="move-button-icon"
-            data-icon-name="arrow_up"
-            data-icon-group="arrows"
-          />
-        </button>
-        <button class="move-button button-move-right" data-direction="right">
-          <img
-            src="../assets/icons/light/arrows/arrow_right.svg"
-            alt=""
-            class="move-button-icon"
-            data-icon-name="arrow_right"
-            data-icon-group="arrows"
-          />
-        </button>
-        <button class="move-button button-move-down" data-direction="down">
-          <img
-            src="../assets/icons/light/arrows/arrow_down.svg"
-            alt=""
-            class="move-button-icon"
-            data-icon-name="arrow_down"
-            data-icon-group="arrows"
-          />
-        </button>
-        <button class="move-button button-move-left" data-direction="left">
-          <img
-            src="../assets/icons/light/arrows/arrow_left.svg"
-            alt=""
-            class="move-button-icon"
-            data-icon-name="arrow_left"
-            data-icon-group="arrows"
-          />
-        </button>
-      </section>
-      <section class="game-over-panel-container">
-        <div class="game-over-panel-overlay"></div>
-        <div class="game-over-panel">
-          <h1 class="game-over-panel-heading">Game Over!</h1>
-          <p class="game-over-panel-message"></p>
-          <button class="restart-game-button">Restart</button>
-        </div>
-      </section>
+      <main class="main">
+        <section class="canvas-scores-container">
+          <section class="score-container">
+            <p class="current-score-container">Score: <span class="current-score">0</span></p>
+            <p class="high-score-container">High Score: <span class="high-score">0</span></p>
+          </section>
+          <canvas class="canvas"></canvas>
+        </section>
+
+        <section class="game-controls">
+          <button class="move-button button-move-up" data-direction="up">
+            <img
+              src="../assets/icons/light/arrows/arrow_up.svg"
+              alt=""
+              class="move-button-icon"
+              data-icon-name="arrow_up"
+              data-icon-group="arrows"
+            />
+          </button>
+          <button class="move-button button-move-right" data-direction="right">
+            <img
+              src="../assets/icons/light/arrows/arrow_right.svg"
+              alt=""
+              class="move-button-icon"
+              data-icon-name="arrow_right"
+              data-icon-group="arrows"
+            />
+          </button>
+          <button class="move-button button-move-down" data-direction="down">
+            <img
+              src="../assets/icons/light/arrows/arrow_down.svg"
+              alt=""
+              class="move-button-icon"
+              data-icon-name="arrow_down"
+              data-icon-group="arrows"
+            />
+          </button>
+          <button class="move-button button-move-left" data-direction="left">
+            <img
+              src="../assets/icons/light/arrows/arrow_left.svg"
+              alt=""
+              class="move-button-icon"
+              data-icon-name="arrow_left"
+              data-icon-group="arrows"
+            />
+          </button>
+        </section>
+        <section class="game-over-panel-container">
+          <div class="game-over-panel-overlay"></div>
+          <div class="game-over-panel">
+            <h1 class="game-over-panel-heading">Game Over!</h1>
+            <p class="game-over-panel-message"></p>
+            <button class="restart-game-button">Restart</button>
+          </div>
+        </section>
+      </main>
     </div>
   </body>
 </html>
