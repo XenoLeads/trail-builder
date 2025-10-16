@@ -139,6 +139,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
+  width: 50vmin;
   transform: translateY(50%);
   opacity: 0;
   pointer-events: none;
@@ -148,6 +149,12 @@
   transform: translateY(0);
   opacity: 1;
   pointer-events: all;
+}
+.game-over-panel-heading {
+  white-space: nowrap;
+}
+.game-over-panel-message {
+  text-align: center;
 }
 .restart-game-button {
   font-size: inherit;
@@ -319,6 +326,9 @@ button {
   }
   #container.settings-visible > .header > .input-container {
     transform: scaleY(1);
+  }
+  .game-over-panel {
+    width: 70vmin;
   }
 }
 @media (orientation: portrait) and (min-width: 768px) {
