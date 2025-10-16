@@ -212,8 +212,8 @@ function move(grow = false) {
 
 function get_next_head() {
   const new_head = {
-    row: (head.row += x_velocity),
-    column: (head.column += y_velocity),
+    row: head.row + x_velocity,
+    column: head.column + y_velocity,
   };
   return new_head;
 }
@@ -272,6 +272,7 @@ function handle_change_direction_button_click(event) {
 }
 
 function draw(dark_mode = true, head_color = null, body_color_1 = null, body_color_2 = null, target_color = null) {
+  clear_canvas();
   const dark_mode_colors = ["#87ceeb", "#66c1e5", "#7ccae9", "#01ff00"];
   const light_mode_colors = ["#2ca7d8", "#31b4e0", "#45c2e8", "#00cc44"];
   if (dark_mode) {
@@ -311,7 +312,6 @@ function animate(timestamp) {
   let is_next_move_valid = true;
   const frame_time = timestamp - previous_timestamp;
   if (frame_time > game_tick) {
-    processed_tick = true;
     previous_timestamp = timestamp;
     const hit_the_target = head.row === target.row && head.column === target.column;
     if (hit_the_target) {
@@ -321,12 +321,12 @@ function animate(timestamp) {
       update_score_display(score, high_score);
     } else is_next_move_valid = move();
 
-    clear_canvas();
     if (!is_next_move_valid) {
       cancelAnimationFrame(animate);
       draw(is_dark_mode, "#ff0000", "#cc0000", "#e60000");
       game_over_panel();
     } else draw(is_dark_mode);
+    processed_tick = true;
   }
   if (is_next_move_valid) requestAnimationFrame(animate);
 }
